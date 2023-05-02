@@ -4,7 +4,8 @@ from config import motor_l, motor_r, ir_left, ir_mid, ir_right
 P, D, I, previous_error, PID_value, error = 0, 0, 0, 0, 0, 0
 lsp, rsp = 0, 0
 
-lf_speed = 0.8
+# TODO: Check if having a low speed for turning and a high for line following improves performance
+speed = 0.8
 Kp = 0.1
 Kd = 0.1
 Ki = 0
@@ -12,6 +13,7 @@ Ki = 0
 
 # Define functions for each behavior
 
+# Calibrate sensors
 def calibrate(clockwise=True):
     min_values = [3.3, 3.3, 3.3]
     max_values = [0, 0, 0]
@@ -46,10 +48,11 @@ def calibrate(clockwise=True):
     motor_r.throttle = 0
 
 
+# PID algorithm implementation for line following
 def follow_line():
     global Kp, Kd, Ki
     global P, D, I, previous_error, PID_value, error
-    global lf_speed
+    global speed
     global lsp, rsp
     error = ir_left.value() - ir_right.value()
     P = error
@@ -59,8 +62,8 @@ def follow_line():
     PID_value = (Kp * P) + (Ki * I) + (Kd * D)
     previous_error = error
 
-    lsp = lf_speed - PID_value
-    rsp = lf_speed + PID_value
+    lsp = speed - PID_value
+    rsp = speed + PID_value
 
     # Make sure the speeds are within bounds, the motors work only on the speeds between 0.5 and 1.0
     lsp = max(0.0, min(1.0, lsp))
@@ -77,7 +80,6 @@ def stop():
     rsp = 0
     motor_l.throttle = 0
     motor_r.throttle = 0
-    # Play tones
 
 
 def line_follow():
@@ -91,19 +93,21 @@ def line_follow():
 def left_turn():
     global lsp, rsp
     lsp = 0
-    rsp = lf_speed
+    rsp = speed
     motor_l.throttle = 0
-    motor_r.throttle = lf_speed
+    motor_r.throttle = speed
 
 
 def right_turn():
     global lsp, rsp
-    lsp = lf_speed
+    lsp = speed
     rsp = 0
-    motor_l.throttle = lf_speed
+    motor_l.throttle = speed
     motor_r.throttle = 0
 
 
+# TODO: Check if making the turns even sharper by turning the other wheel in the opposite direction helps
+# The robot is coasting when it has lost the way, so the turns should be sharp
 def coast():
     global lsp, rsp
     if lsp > rsp:
