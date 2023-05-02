@@ -1,4 +1,10 @@
-from config import motor_l, motor_r, ir_left, ir_mid, ir_right
+from config import (
+    motor_l,
+    motor_r,
+    ir_left,
+    ir_mid,
+    ir_right
+)
 
 # Setup variables for PID algorithm
 P, D, I, previous_error, PID_value, error = 0, 0, 0, 0, 0, 0

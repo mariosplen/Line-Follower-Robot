@@ -1,7 +1,15 @@
 import time
 
 import behaviors
-from config import start_btn, calibrate_btn, ir_left, ir_mid, ir_right, start_tune, stop_tune
+from config import (
+    start_btn,
+    calibrate_btn,
+    ir_left,
+    ir_mid,
+    ir_right,
+    start_tune,
+    stop_tune,
+)
 
 # State codes represented as binary constants where each digit corresponds to a sensor detecting a black line.
 # Example: 010 means the middle sensor detecting a line.

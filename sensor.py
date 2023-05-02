@@ -3,8 +3,8 @@ import analogio
 
 class Sensor:
     def __init__(self, pin):
-        self.min = 0
-        self.max = 3.3
+        self.min = 0  # Minimum detected value
+        self.max = 3.3  # Maximum detected value
         self.threshold = 1.65  # (0 + 3.3) / 2
         self.pin = analogio.AnalogIn(pin)
 
@@ -21,5 +21,6 @@ class Sensor:
     def value(self):
         return (self.pin.value * 3.3) / 65536
 
+    # If the value is > than the threshold that means that the line is detected
     def is_above_line(self):
         return self.value() > self.threshold
