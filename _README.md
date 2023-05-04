@@ -1,3 +1,5 @@
+
+Line Follower Robot built with 3 analog IR sensors, using PID algorithm and the MAKER-PI-RP2040 board.
 # Line Follower
 
 This is a project that demonstrates how to create a line-following robot using 3 analog IR sensors, a MAKER-PI-RP2040 board, CircuitPython, and a PID algorithm.
