@@ -2,8 +2,8 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
-const char *ssid = "SSID";
-const char *password = "PASSWORD";
+const char *ssid = "Nova-m";
+const char *password = "84868M8";
 
 ESP8266WebServer server(80);
 
