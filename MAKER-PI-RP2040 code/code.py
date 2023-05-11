@@ -60,9 +60,8 @@ def follow(max_speed):
 
 
 def main():
-    last_btn2_state = False
-    last_btn1_state = False
     while True:
+        # Code for the RC
         motor_l_value = 0
         motor_r_value = 0
         if m_l_forward.value:
@@ -77,29 +76,33 @@ def main():
         motor_l.throttle = motor_l_value
         motor_r.throttle = motor_r_value
 
-        btn2_state = btn2.value
-        btn1_state = btn1.value
-
-        # Check if both buttons are pressed and debounce
-        if btn2_state and btn1_state and not last_btn2_state and not last_btn1_state:
-            time.sleep(0.2)
-            if btn2.value and btn1.value:
-                # print("Calibration started")
-                behaviors.calibrate()
-                time.sleep(0.5)
-                behaviors.calibrate(clockwise=False)
-                # print("Calibration finished!")
-
-        last_btn2_state = btn2_state
-        last_btn1_state = btn1_state
-
-        if not btn1_state:
-            # print("btn1 pressed")
-            follow(0.5)
-
-        if not btn2_state:
-            # print("btn2 pressed")
-            follow(1)
+        # The robot can be powered by either 4xAA batteries or a rechargeable Lipo. To enable maximum speed,
+        # press btn2 when using 4xAA batteries, and btn1 when using the Lipo. If both buttons are pressed
+        # simultaneously for at least 1 second, the calibration process will start.
+        if not btn1.value:
+            start_time = time.time()
+            while True:
+                if not btn2.value:
+                    # print("Calibration started")
+                    behaviors.calibrate()
+                    time.sleep(0.5)
+                    behaviors.calibrate(clockwise=False)
+                    # print("Calibration finished!")
+                if time.time() - start_time > 1:
+                    # print("btn1 pressed")
+                    follow(0.5)
+        if not btn2.value:
+            start_time = time.time()
+            while True:
+                if not btn1.value:
+                    # print("Calibration started")
+                    behaviors.calibrate()
+                    time.sleep(0.5)
+                    behaviors.calibrate(clockwise=False)
+                    # print("Calibration finished!")
+                if time.time() - start_time > 1:
+                    # print("btn2 pressed")
+                    follow(1)
 
 
 if __name__ == "__main__":

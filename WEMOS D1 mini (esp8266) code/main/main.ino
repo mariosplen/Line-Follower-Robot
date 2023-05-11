@@ -4,11 +4,11 @@
 
 #ifndef APSSID
 #define APSSID "RC-Line-Follower"
-#define APPSK "mariosplen"
+// #define APPSK "mariosplen"
 #endif
 
 const char *ssid = APSSID;
-const char *password = APPSK;
+// const char *password = APPSK;
 
 ESP8266WebServer server(80);
 
