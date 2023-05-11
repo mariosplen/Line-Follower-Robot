@@ -65,13 +65,13 @@ def main():
         motor_l_value = 0
         motor_r_value = 0
         if m_l_forward.value:
-            motor_l_value = 0.5
+            motor_l_value = 1
         elif m_l_backward.value:
-            motor_l_value = -0.5
+            motor_l_value = -1
         if m_r_forward.value:
-            motor_r_value = 0.5
+            motor_r_value = 1
         elif m_r_backward.value:
-            motor_r_value = -0.5
+            motor_r_value = -1
 
         motor_l.throttle = motor_l_value
         motor_r.throttle = motor_r_value
@@ -84,25 +84,31 @@ def main():
             while True:
                 if not btn2.value:
                     # print("Calibration started")
+                    time.sleep(1)
                     behaviors.calibrate()
                     time.sleep(0.5)
                     behaviors.calibrate(clockwise=False)
                     # print("Calibration finished!")
-                if time.time() - start_time > 1:
+                    break
+                if time.time() - start_time > 2:
                     # print("btn1 pressed")
                     follow(0.5)
+                    break
         if not btn2.value:
             start_time = time.time()
             while True:
                 if not btn1.value:
                     # print("Calibration started")
+                    time.sleep(1)
                     behaviors.calibrate()
                     time.sleep(0.5)
                     behaviors.calibrate(clockwise=False)
+                    break
                     # print("Calibration finished!")
                 if time.time() - start_time > 1:
                     # print("btn2 pressed")
                     follow(1)
+                    break
 
 
 if __name__ == "__main__":

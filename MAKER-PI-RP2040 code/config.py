@@ -51,9 +51,9 @@ def stop_tune():
 
 # Initialize Remote Control Inputs
 m_l_forward = digitalio.DigitalInOut(board.GP17)
-m_l_backward = digitalio.DigitalInOut(board.GP7)
-m_r_forward = digitalio.DigitalInOut(board.GP3)
-m_r_backward = digitalio.DigitalInOut(board.GP2)
+m_l_backward = digitalio.DigitalInOut(board.GP2)
+m_r_forward = digitalio.DigitalInOut(board.GP7)
+m_r_backward = digitalio.DigitalInOut(board.GP3)
 
 m_l_forward.direction = digitalio.Direction.INPUT
 m_l_backward.direction = digitalio.Direction.INPUT
