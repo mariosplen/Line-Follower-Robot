@@ -71,9 +71,9 @@ def follow_line():
     lsp = speed - PID_value
     rsp = speed + PID_value
 
-    # Make sure the speeds are within bounds, the motors work only on the speeds between 0.5 and 1.0
-    lsp = max(0.0, min(1.0, lsp))
-    rsp = max(0.0, min(1.0, rsp))
+    # Make sure the speeds are within bounds, the motors work only on the speeds between 0.5 and speed
+    lsp = max(0.0, min(speed, lsp))
+    rsp = max(0.0, min(speed, rsp))
 
     # Set motor speeds
     motor_l.throttle = lsp

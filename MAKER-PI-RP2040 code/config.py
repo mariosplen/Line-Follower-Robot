@@ -8,12 +8,12 @@ from adafruit_motor import motor
 from sensor import Sensor
 
 # Initialize buttons
-start_btn = digitalio.DigitalInOut(board.GP20)
-start_btn.direction = digitalio.Direction.INPUT
-start_btn.pull = digitalio.Pull.UP
-calibrate_btn = digitalio.DigitalInOut(board.GP21)
-calibrate_btn.direction = digitalio.Direction.INPUT
-calibrate_btn.pull = digitalio.Pull.UP
+btn1 = digitalio.DigitalInOut(board.GP20)
+btn1.direction = digitalio.Direction.INPUT
+btn1.pull = digitalio.Pull.UP
+btn2 = digitalio.DigitalInOut(board.GP21)
+btn2.direction = digitalio.Direction.INPUT
+btn2.pull = digitalio.Pull.UP
 
 # Initialize DC motors
 m1a = pwmio.PWMOut(board.GP8, frequency=10000)
@@ -50,9 +50,9 @@ def stop_tune():
 
 
 # Initialize Remote Control Inputs
-m_l_forward = digitalio.DigitalInOut(board.GP3)
-m_l_backward = digitalio.DigitalInOut(board.GP17)
-m_r_forward = digitalio.DigitalInOut(board.GP7)
+m_l_forward = digitalio.DigitalInOut(board.GP17)
+m_l_backward = digitalio.DigitalInOut(board.GP7)
+m_r_forward = digitalio.DigitalInOut(board.GP3)
 m_r_backward = digitalio.DigitalInOut(board.GP2)
 
 m_l_forward.direction = digitalio.Direction.INPUT

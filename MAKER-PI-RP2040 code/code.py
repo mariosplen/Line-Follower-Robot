@@ -2,8 +2,8 @@ import time
 
 import behaviors
 from config import (
-    start_btn,
-    calibrate_btn,
+    btn1,
+    btn2,
     ir_left,
     ir_mid,
     ir_right,
@@ -41,7 +41,27 @@ states = {
 }
 
 
+def follow(max_speed):
+    behaviors.speed = max_speed
+    start_tune()
+    while True:
+        sensor_data = (ir_left.is_above_line(), ir_mid.is_above_line(), ir_right.is_above_line())
+        # Convert the boolean sensor readings for left, middle, and right IR sensors to an integer state.
+        # Each sensor reading represents a binary digit, so we can represent all possible sensor combinations
+        # with a unique integer from 0 to 7. For example, (False, False, False) becomes 0, (False, False,
+        # True) becomes 1, (False, True, False) becomes 2, and so on.
+        state = (int(sensor_data[0]) << 2) | (int(sensor_data[1]) << 1) | int(sensor_data[2])
+        # Call the function associated with the current state
+        states[state]()
+        if state == STOP:
+            stop_tune()
+            # print("Finished!")
+            break
+
+
 def main():
+    last_btn2_state = False
+    last_btn1_state = False
     while True:
         motor_l_value = 0
         motor_r_value = 0
@@ -57,29 +77,29 @@ def main():
         motor_l.throttle = motor_l_value
         motor_r.throttle = motor_r_value
 
-        if not calibrate_btn.value:
-            # print("Calibration button pressed")
-            time.sleep(1)
-            behaviors.calibrate()
-            time.sleep(0.5)
-            behaviors.calibrate(clockwise=False)
-            # print("Calibration finished!")
-        if not start_btn.value:
-            # print("Start button pressed")
-            start_tune()
-            while True:
-                sensor_data = (ir_left.is_above_line(), ir_mid.is_above_line(), ir_right.is_above_line())
-                # Convert the boolean sensor readings for left, middle, and right IR sensors to an integer state.
-                # Each sensor reading represents a binary digit, so we can represent all possible sensor combinations
-                # with a unique integer from 0 to 7. For example, (False, False, False) becomes 0, (False, False,
-                # True) becomes 1, (False, True, False) becomes 2, and so on.
-                state = (int(sensor_data[0]) << 2) | (int(sensor_data[1]) << 1) | int(sensor_data[2])
-                # Call the function associated with the current state
-                states[state]()
-                if state == STOP:
-                    stop_tune()
-                    # print("Finished!")
-                    break
+        btn2_state = btn2.value
+        btn1_state = btn1.value
+
+        # Check if both buttons are pressed and debounce
+        if btn2_state and btn1_state and not last_btn2_state and not last_btn1_state:
+            time.sleep(0.2)
+            if btn2.value and btn1.value:
+                # print("Calibration started")
+                behaviors.calibrate()
+                time.sleep(0.5)
+                behaviors.calibrate(clockwise=False)
+                # print("Calibration finished!")
+
+        last_btn2_state = btn2_state
+        last_btn1_state = btn1_state
+
+        if not btn1_state:
+            # print("btn1 pressed")
+            follow(0.5)
+
+        if not btn2_state:
+            # print("btn2 pressed")
+            follow(1)
 
 
 if __name__ == "__main__":
