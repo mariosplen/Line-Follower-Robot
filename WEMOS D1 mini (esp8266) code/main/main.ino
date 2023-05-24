@@ -17,9 +17,11 @@ const int MOTOR1_REVERSE_PIN = D0;
 const int MOTOR2_FORWARD_PIN = D1;
 const int MOTOR2_REVERSE_PIN = D8;
 
-void handleRoot()
-{
-    String html = R"html(
+byte temperature = 0;
+byte humidity = 0;
+
+void handleRoot(){
+  String html = R"html(
     <!DOCTYPE html>
     <html lang="en" xmlns="http://www.w3.org/1999/html">
     <head>
@@ -140,6 +142,20 @@ void handleRoot()
 
 
         </div>
+        <div class="d-flex   px-3 justify-content-center">
+            <button id="calibration-button">Calibrate</button>
+            <button id="line-following-button">Line Following</button>
+            <div class="d-flex flex-column rounded-bg px-3 justify-content-center">
+                <label for="speed-slider">Speed:</label>
+                <input id="speed-slider" max="100" min="50" step="10" type="range" value="80"/>
+            </div>
+
+        </div>
+
+        <div id="sensor-data">
+            <p>Temperature: <span id="temperature">--</span></p>
+            <p>Humidity: <span id="humidity">--</span></p>
+        </div>
     </div>
     <script>
         const motor1ForwardButton = document.getElementById('motor1-forward');
@@ -175,81 +191,149 @@ void handleRoot()
             sendRequest('/motor2_reverse', 0);
         });
 
+        const calibrationButton = document.getElementById('calibration-button');
+        const lineFollowingButton = document.getElementById('line-following-button');
+        const speedSlider = document.getElementById('speed-slider');
+
+        // Add event listeners for buttons and slider
+        calibrationButton.addEventListener('click', function () {
+            sendRequest('/calibration', 1);
+        });
+        lineFollowingButton.addEventListener('click', function () {
+            sendRequest('/line_following', 1);
+        });
+        speedSlider.addEventListener('input', function () {
+            const speed = speedSlider.value;
+            sendRequest('/speed', speed);
+        });
+
         function sendRequest(url, state) {
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url + '?state=' + state, true);
             xhr.send();
         }
+
+        function updateValues() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    var data = JSON.parse(this.responseText);
+                    document.getElementById('temperature').innerText = data.temperature;
+                    document.getElementById('humidity').innerText = data.humidity;
+                }
+            };
+            xhttp.open('GET', '/values', true);
+            xhttp.send();
+        }
+
+        setInterval(updateValues, 2000);
     </script>
     </body>
     </html>
   )html";
-    server.send(200, "text/html", html);
+  server.send(200, "text/html", html);
 }
 
-void handleMotor1Forward()
-{
-    int state = server.arg("state").toInt();
-    // Serial.println(state);
-
-    digitalWrite(MOTOR1_FORWARD_PIN, state);
-    server.send(200, "text/plain", "OK");
+void handleMotor1Forward(){
+  int state = server.arg("state").toInt();
+  digitalWrite(MOTOR1_FORWARD_PIN, state);
+  server.send(200, "text/plain", "OK");
 }
 
-void handleMotor1Reverse()
-{
-    int state = server.arg("state").toInt();
-    digitalWrite(MOTOR1_REVERSE_PIN, state);
-    server.send(200, "text/plain", "OK");
+void handleMotor1Reverse(){
+  int state = server.arg("state").toInt();
+  digitalWrite(MOTOR1_REVERSE_PIN, state);
+  server.send(200, "text/plain", "OK");
 }
 
-void handleMotor2Forward()
-{
-    int state = server.arg("state").toInt();
-    digitalWrite(MOTOR2_FORWARD_PIN, state);
-    server.send(200, "text/plain", "OK");
+void handleMotor2Forward(){
+  int state = server.arg("state").toInt();
+  digitalWrite(MOTOR2_FORWARD_PIN, state);
+  server.send(200, "text/plain", "OK");
 }
 
-void handleMotor2Reverse()
-{
-    int state = server.arg("state").toInt();
-    digitalWrite(MOTOR2_REVERSE_PIN, state);
-    server.send(200, "text/plain", "OK");
+void handleMotor2Reverse(){
+  int state = server.arg("state").toInt();
+  digitalWrite(MOTOR2_REVERSE_PIN, state);
+  server.send(200, "text/plain", "OK");
+}
+void handleCalibration(){
+  int state = server.arg("state").toInt();
+  Serial.println("CALBR");
+  server.send(200, "text/plain", "OK");
+}
+void handleLineFollowing(){
+  int state = server.arg("state").toInt();
+  Serial.println("FOLLO");
+  server.send(200, "text/plain", "OK");
+}
+void handleSpeed(){
+  int state = server.arg("state").toInt();
+  String speed = "S," + String(state);
+  Serial.println(speed);
+  server.send(200, "text/plain", "OK");
 }
 
-void setup()
-{
-    delay(1000);
-    // Serial.begin(115200);
-
-    pinMode(MOTOR1_FORWARD_PIN, OUTPUT);
-    pinMode(MOTOR1_REVERSE_PIN, OUTPUT);
-    pinMode(MOTOR2_FORWARD_PIN, OUTPUT);
-    pinMode(MOTOR2_REVERSE_PIN, OUTPUT);
-
-    // Serial.print("Configuring access point...");
-
-    IPAddress ip(192, 168, 1, 1);       // Set the IP address of the access point
-    IPAddress subnet(255, 255, 255, 0); // Set the subnet mask
-    IPAddress gateway(192, 168, 1, 1);  // Set the gateway address (same as IP address)
-
-    WiFi.softAPConfig(ip, gateway, subnet); // Configure the access point with the new settings
-    // You can add a password parameter if you want the AP to be secured.
-    WiFi.softAP(ssid); // Start the access point with the new settings
-
-    IPAddress myIP = WiFi.softAPIP();
-    // Serial.print("AP IP address: ");
-    // Serial.println(myIP);
-    server.on("/", handleRoot);
-    server.on("/motor1_forward", handleMotor1Forward);
-    server.on("/motor1_reverse", handleMotor1Reverse);
-    server.on("/motor2_forward", handleMotor2Forward);
-    server.on("/motor2_reverse", handleMotor2Reverse);
-    server.begin();
-    // Serial.println("HTTP server started");
+void handleValues(){
+  String values = "{\"temperature\": " + String(temperature) + ", \"humidity\": " + String(humidity) + "}";
+  server.send(200, "application/json", values);
 }
 
-void loop()
-{
-    server.handleClient();
+void setup(){
+  delay(1000);
+  Serial.begin(9600);
+
+  pinMode(MOTOR1_FORWARD_PIN, OUTPUT);
+  pinMode(MOTOR1_REVERSE_PIN, OUTPUT);
+  pinMode(MOTOR2_FORWARD_PIN, OUTPUT);
+  pinMode(MOTOR2_REVERSE_PIN, OUTPUT);
+
+  // Serial.print("Configuring access point...");
+
+  IPAddress ip(192, 168, 1, 1);       // Set the IP address of the access point
+  IPAddress subnet(255, 255, 255, 0); // Set the subnet mask
+  IPAddress gateway(192, 168, 1, 1);  // Set the gateway address (same as IP address)
+
+  WiFi.softAPConfig(ip, gateway, subnet); // Configure the access point with the new settings
+  // You can add a password parameter if you want the AP to be secured.
+  WiFi.softAP(ssid); // Start the access point with the new settings
+
+  IPAddress myIP = WiFi.softAPIP();
+  // Serial.print("AP IP address: ");
+  // Serial.println(myIP);
+  server.on("/", handleRoot);
+  server.on("/motor1_forward", handleMotor1Forward);
+  server.on("/motor1_reverse", handleMotor1Reverse);
+  server.on("/motor2_forward", handleMotor2Forward);
+  server.on("/motor2_reverse", handleMotor2Reverse);
+  server.on("/calibration", handleCalibration);
+  server.on("/line_following", handleLineFollowing);
+  server.on("/speed", handleSpeed);
+  server.on("/values", handleValues);
+  server.begin();
+  // Serial.println("HTTP server started");
+}
+
+void updateSensorData(){
+  if (Serial.available() > 0){
+    String data = Serial.readStringUntil('\n'); // Read the incoming byte data until a newline character is encountered
+    int commaIndex = data.indexOf(',');
+    if (commaIndex != -1){
+      temperature = data.substring(0, commaIndex).toInt(); // Extract the temperature value
+      humidity = data.substring(commaIndex + 1).toInt();   // Extract the humidity value
+    }
+  }
+}
+
+unsigned long previousUpdateMillis = 0;
+const unsigned long updateInterval = 5000;
+
+void loop(){
+  server.handleClient();
+  // Update temperature and humidity values by reading the serial data every 5 seconds
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousUpdateMillis >= updateInterval){
+    previousUpdateMillis = currentMillis;
+    updateSensorData();
+  }
 }

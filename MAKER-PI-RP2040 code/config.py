@@ -1,3 +1,5 @@
+# import adafruit_dht
+# import busio
 import board
 import digitalio
 import neopixel
@@ -59,3 +61,27 @@ m_l_forward.direction = digitalio.Direction.INPUT
 m_l_backward.direction = digitalio.Direction.INPUT
 m_r_forward.direction = digitalio.Direction.INPUT
 m_r_backward.direction = digitalio.Direction.INPUT
+
+# Initialize UART
+# uart = busio.UART(tx=board.GP16, rx=board.GP1, baudrate=9600)
+
+# Create a DHT11 instance
+# dht = adafruit_dht.DHT11(board.GP6)
+
+
+# Writes to the Serial the DHT Sensor reading
+# def write_info():
+#     try:
+#         # Read temperature and humidity from the sensor
+#         temperature = dht.temperature
+#         humidity = dht.humidity
+#
+#         # Format temperature and humidity as a string
+#         data = f"{temperature},{humidity}"
+#
+#         # Convert the string to bytes and write to the serial port
+#         uart.write(bytes(data, "utf-8"))
+#         print(bytes(data, "utf-8"))
+#     except RuntimeError as e:
+#         # Errors happen fairly often, DHT's are hard to read, just keep going
+#         print('Error reading DHT11:', e)

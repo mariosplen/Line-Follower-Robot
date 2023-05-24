@@ -14,7 +14,8 @@ from config import (
     m_l_forward,
     m_l_backward,
     m_r_forward,
-    m_r_backward
+    m_r_backward,
+    # uart, write_info,
 )
 
 # State codes represented as binary constants where each digit corresponds to a sensor detecting a black line.
@@ -59,19 +60,54 @@ def follow(max_speed):
             break
 
 
+# DISABLED BECAUSE UNSTABLE
+# def read_info():
+#     global speed
+#     data = uart.read(5)  # Read up to 5 bytes
+#
+#     if data is not None:
+#         data_string = data.decode('utf-8')  # Convert bytes to string
+#
+#         if "CALBR" in data_string:
+#             behaviors.calibrate()
+#         elif "FOLLO" in data_string:
+#             behaviors.follow(behaviors.speed)
+#         elif "S," in data_string:
+#             print(data_string)
+#             # Extract the speed state number from the received data
+#             speed_state = int(data_string.split(",")[1])
+#             behaviors.speed = speed_state / 100
+
+
 def main():
+    # Define the interval in seconds for the DHT reading
+    # interval = 10
+
+    # Start time
+    # start_time = time.monotonic()
+
     while True:
+
+        # Check if the interval has passed
+        # current_time = time.monotonic()
+        # if current_time - start_time >= interval:
+        #     # Call the function
+        #     read_info()
+        #     write_info()
+        #     # Update the start time
+        #     start_time = current_time
+
         # Code for the RC
         motor_l_value = 0
         motor_r_value = 0
         if m_l_forward.value:
-            motor_l_value = 1
+            motor_l_value = behaviors.speed
         elif m_l_backward.value:
-            motor_l_value = -1
+            motor_l_value = -1 * behaviors.speed
         if m_r_forward.value:
-            motor_r_value = 1
+            motor_r_value = behaviors.speed
         elif m_r_backward.value:
-            motor_r_value = -1
+            motor_r_value = -1 * behaviors.speed
 
         motor_l.throttle = motor_l_value
         motor_r.throttle = motor_r_value
@@ -84,11 +120,7 @@ def main():
             while True:
                 if not btn2.value:
                     # print("Calibration started")
-                    time.sleep(1)
                     behaviors.calibrate()
-                    time.sleep(0.5)
-                    behaviors.calibrate(clockwise=False)
-                    # print("Calibration finished!")
                     break
                 if time.time() - start_time > 2:
                     # print("btn1 pressed")
@@ -99,10 +131,7 @@ def main():
             while True:
                 if not btn1.value:
                     # print("Calibration started")
-                    time.sleep(1)
                     behaviors.calibrate()
-                    time.sleep(0.5)
-                    behaviors.calibrate(clockwise=False)
                     break
                     # print("Calibration finished!")
                 if time.time() - start_time > 1:

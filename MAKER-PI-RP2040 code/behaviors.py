@@ -1,3 +1,5 @@
+import time
+
 from config import (
     motor_l,
     motor_r,
@@ -20,7 +22,15 @@ Ki = 0
 # Define functions for each behavior
 
 # Calibrate sensors
-def calibrate(clockwise=True):
+
+def calibrate():
+    time.sleep(1)
+    calibrate_internal()
+    time.sleep(0.5)
+    calibrate_internal(clockwise=False)
+
+
+def calibrate_internal(clockwise=True):
     min_values = [3.3, 3.3, 3.3]
     max_values = [0, 0, 0]
     thresholds = [1.65, 1.65, 1.65]
