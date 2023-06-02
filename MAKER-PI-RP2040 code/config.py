@@ -1,5 +1,5 @@
-# import adafruit_dht
-# import busio
+import time
+
 import board
 import digitalio
 import neopixel
@@ -38,20 +38,35 @@ pixels.fill(0)
 PIEZO_PIN = board.GP22
 
 
-# Configure tunes
-def start_tune():
-    simpleio.tone(PIEZO_PIN, 262, duration=0.1)
-    simpleio.tone(PIEZO_PIN, 659, duration=0.15)
-    simpleio.tone(PIEZO_PIN, 784, duration=0.2)
+def csgo_bomb_tone():
+    countdown = 30  # Adjust the initial countdown value as desired
+    countdown_frequency = 500  # Adjust the countdown frequency as desired
 
+    # Define the countdown value for calculating beep interval
+    countdown_value = 30  # Adjust the countdown value as desired
 
-def stop_tune():
-    simpleio.tone(PIEZO_PIN, 784, duration=0.1)
-    simpleio.tone(PIEZO_PIN, 659, duration=0.15)
-    simpleio.tone(PIEZO_PIN, 262, duration=0.2)
+    # Initialize variables for timing and interval
+    count = time.monotonic()
+    beep_previous = time.monotonic()
+
+    while countdown > 0:
+        current = time.monotonic()
+
+        if current - count >= 1:
+            count = current
+            countdown -= 1
+
+        beep_interval = 20 + countdown * (900 / countdown_value)
+
+        if current - beep_previous >= beep_interval / 1000:  # Convert beep_interval to seconds
+            beep_previous = current
+            simpleio.tone(PIEZO_PIN, countdown_frequency, 0.1)  # Play the tone for 100 milliseconds
+
+        time.sleep(0.01)
 
 
 # Initialize Remote Control Inputs
+
 m_l_forward = digitalio.DigitalInOut(board.GP17)
 m_l_backward = digitalio.DigitalInOut(board.GP2)
 m_r_forward = digitalio.DigitalInOut(board.GP7)
@@ -61,27 +76,3 @@ m_l_forward.direction = digitalio.Direction.INPUT
 m_l_backward.direction = digitalio.Direction.INPUT
 m_r_forward.direction = digitalio.Direction.INPUT
 m_r_backward.direction = digitalio.Direction.INPUT
-
-# Initialize UART
-# uart = busio.UART(tx=board.GP16, rx=board.GP1, baudrate=9600)
-
-# Create a DHT11 instance
-# dht = adafruit_dht.DHT11(board.GP6)
-
-
-# Writes to the Serial the DHT Sensor reading
-# def write_info():
-#     try:
-#         # Read temperature and humidity from the sensor
-#         temperature = dht.temperature
-#         humidity = dht.humidity
-#
-#         # Format temperature and humidity as a string
-#         data = f"{temperature},{humidity}"
-#
-#         # Convert the string to bytes and write to the serial port
-#         uart.write(bytes(data, "utf-8"))
-#         print(bytes(data, "utf-8"))
-#     except RuntimeError as e:
-#         # Errors happen fairly often, DHT's are hard to read, just keep going
-#         print('Error reading DHT11:', e)

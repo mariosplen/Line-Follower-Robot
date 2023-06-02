@@ -12,10 +12,12 @@ from config import (
 P, D, I, previous_error, PID_value, error = 0, 0, 0, 0, 0, 0
 lsp, rsp = 0, 0
 
-# TODO: Check if having a low speed for turning and a high for line following improves performance
-speed = 0.8
-Kp = 0.1
-Kd = 0.1
+# Speed variable
+speed = 1
+
+# PID constants
+Kp = 0.2
+Kd = 4.5
 Ki = 0
 
 
@@ -65,7 +67,7 @@ def calibrate_internal(clockwise=True):
 
 
 # PID algorithm implementation for line following
-def follow_line():
+def line_follow():
     global Kp, Kd, Ki
     global P, D, I, previous_error, PID_value, error
     global speed
@@ -81,7 +83,7 @@ def follow_line():
     lsp = speed - PID_value
     rsp = speed + PID_value
 
-    # Make sure the speeds are within bounds, the motors work only on the speeds between 0.5 and speed
+    # Make sure the speeds are within bounds, the motors work only on the speeds between 0.5 and speed variable
     lsp = max(0.0, min(speed, lsp))
     rsp = max(0.0, min(speed, rsp))
 
@@ -96,14 +98,6 @@ def stop():
     rsp = 0
     motor_l.throttle = 0
     motor_r.throttle = 0
-
-
-def line_follow():
-    # global Kp, Kd, Ki
-    # Kp = ...
-    # Kd = ...
-    # Ki = ...
-    follow_line()
 
 
 def left_turn():
@@ -122,7 +116,6 @@ def right_turn():
     motor_r.throttle = 0
 
 
-# TODO: Check if making the turns even sharper by turning the other wheel in the opposite direction helps
 # The robot is coasting when it has lost the way, so the turns should be sharp
 def coast():
     global lsp, rsp
