@@ -8,6 +8,7 @@ board, CircuitPython, and a PID algorithm.
 ## Used:
 
 - MAKER-PI-RP2040 board
+- ESP8266 (for the remote control functionality)
 - CircuitPython
 - 3x analog IR sensors
 - 2x Motors
@@ -21,3 +22,10 @@ The robot follows a black line on a white surface. The IR sensors detect the lin
 algorithm processes the signals and controls the motors to keep the robot centered on the line.
 
 This project was for a semester course in my university.
+
+## Images
+
+<img src="photos/top_view.jpg" width="250px" />
+<img src="photos/bottom_view.jpg" width="250px"  />
+<img src="photos/map.jpg" width="250px" />
+<img src="photos/all.jpg" width="250px" />
