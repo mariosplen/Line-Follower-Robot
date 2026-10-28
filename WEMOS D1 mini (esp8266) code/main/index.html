@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+
+    <title>Remote Control Line Follower Robot</title>
+
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+
+
+        span.label {
+            font-size: 60px;
+            color: #8e8e8e;
+        }
+
+        div.rounded-bg {
+            background: #d9d9d9;
+            border-radius: 50px;
+
+        }
+
+        i.control-icon {
+            font-size: 24px;
+            color: #2e2e2e;
+            width: 100%;
+            text-align: center;
+        }
+
+        .d-flex {
+            display: flex !important;
+        }
+
+        .justify-content-between {
+            justify-content: space-between !important;
+        }
+
+        .flex-column {
+            flex-direction: column !important;
+        }
+
+        .px-3 {
+            padding-right: 1rem !important;
+            padding-left: 1rem !important;
+        }
+
+        .justify-content-center {
+            justify-content: center !important;
+        }
+
+        .py-5 {
+            padding-top: 3rem !important;
+            padding-bottom: 3rem !important;
+        }
+
+        .container {
+            width: 100%;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        @media (min-width: 576px) {
+            .container {
+                max-width: 540px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 720px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                max-width: 960px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1140px;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 1320px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex   justify-content-between ">
+
+
+        <div class="d-flex flex-column rounded-bg  px-3 justify-content-center ">
+            <i class=" py-5 control-icon" id="motor1-forward">▲</i>
+            <span class="label py-5">Motor1</span>
+            <i class="  py-5 control-icon" id="motor1-backward">▼</i>
+        </div>
+
+        <div class="d-flex flex-column rounded-bg  px-3 justify-content-center ">
+            <i class=" py-5 control-icon" id="motor2-forward">▲</i>
+            <span class="label py-5">Motor2</span>
+            <i class="  py-5 control-icon" id="motor2-backward">▼</i>
+        </div>
+
+
+    </div>
+    <div class="d-flex   px-3 justify-content-center">
+        <button id="calibration-button">Calibrate</button>
+        <button id="line-following-button">Line Following</button>
+        <div class="d-flex flex-column rounded-bg px-3 justify-content-center">
+            <label for="speed-slider">Speed:</label>
+            <input id="speed-slider" max="100" min="50" step="10" type="range" value="80"/>
+        </div>
+
+    </div>
+
+    <div id="sensor-data">
+        <p>Temperature: <span id="temperature">--</span></p>
+        <p>Humidity: <span id="humidity">--</span></p>
+    </div>
+</div>
+<script>
+    const motor1ForwardButton = document.getElementById('motor1-forward');
+    motor1ForwardButton.addEventListener('touchstart', function () {
+        sendRequest('/motor1_forward', 1);
+        console.log("pressed");
+    });
+    motor1ForwardButton.addEventListener('touchend', function () {
+        sendRequest('/motor1_forward', 0);
+    });
+
+    const motor2ForwardButton = document.getElementById('motor2-forward');
+    motor2ForwardButton.addEventListener('touchstart', function () {
+        sendRequest('/motor2_forward', 1);
+    });
+    motor2ForwardButton.addEventListener('touchend', function () {
+        sendRequest('/motor2_forward', 0);
+    });
+
+    const motor1ReverseButton = document.getElementById('motor1-backward');
+    motor1ReverseButton.addEventListener('touchstart', function () {
+        sendRequest('/motor1_reverse', 1);
+    });
+    motor1ReverseButton.addEventListener('touchend', function () {
+        sendRequest('/motor1_reverse', 0);
+    });
+
+    const motor2ReverseButton = document.getElementById('motor2-backward');
+    motor2ReverseButton.addEventListener('touchstart', function () {
+        sendRequest('/motor2_reverse', 1);
+    });
+    motor2ReverseButton.addEventListener('touchend', function () {
+        sendRequest('/motor2_reverse', 0);
+    });
+
+    const calibrationButton = document.getElementById('calibration-button');
+    const lineFollowingButton = document.getElementById('line-following-button');
+    const speedSlider = document.getElementById('speed-slider');
+
+    // Add event listeners for buttons and slider
+    calibrationButton.addEventListener('click', function () {
+        sendRequest('/calibration', 1);
+    });
+    lineFollowingButton.addEventListener('click', function () {
+        sendRequest('/line_following', 1);
+    });
+    speedSlider.addEventListener('input', function () {
+        const speed = speedSlider.value;
+        sendRequest('/speed', speed);
+    });
+
+    function sendRequest(url, state) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', url + '?state=' + state, true);
+        xhr.send();
+    }
+
+    function updateValues() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                var data = JSON.parse(this.responseText);
+                document.getElementById('temperature').innerText = data.temperature;
+                document.getElementById('humidity').innerText = data.humidity;
+            }
+        };
+        xhttp.open('GET', '/values', true);
+        xhttp.send();
+    }
+
+    setInterval(updateValues, 2000);
+</script>
+</body>
+</html>
